@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Feliz Aniversario</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: linear-gradient(to bottom, #ffdde1, #ee9ca7);
+      overflow: hidden;
+      text-align: center;
+    }
+
+    /* Pantalla inicial */
+    #presentacion {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom right, #ff9a9e, #fad0c4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      color: white;
+      font-size: 3em;
+      animation: fadeIn 2s ease-in-out;
+    }
+
+    #abrir {
+      padding: 15px 30px;
+      font-size: 1.2em;
+      background: #ff4d6d;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      animation: pulse 1.5s infinite;
+      display: none;
+    }
+
+    /* Carta */
+    .carta {
+      display: none;
+      position: absolute;
+      top: 15%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      padding: 30px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      font-size: 1.2em;
+      line-height: 1.5em;
+      animation: aparecer 2s ease forwards;
+    }
+
+    /* Rosa */
+    .rosa {
+      display: none;
+      position: fixed;
+      bottom: -300px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      animation: subir 4s ease forwards;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    @keyframes aparecer {
+      from { opacity: 0; transform: translate(-50%, 30px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+    @keyframes subir {
+      from { bottom: -300px; opacity: 0; }
+      to { bottom: 50px; opacity: 1; }
+    }
+
+    /* Confeti y globos */
+    .confeti, .globo {
+      position: absolute;
+      top: -50px;
+      width: 30px;
+      height: 30px;
+      opacity: 0.8;
+      border-radius: 50%;
+      animation: caer 5s linear infinite;
+    }
+    .globo {
+      background: radial-gradient(circle at 30% 30%, #ff4d6d, #e63950);
+    }
+    .confeti {
+      background: radial-gradient(circle at 30% 30%, #ffeb3b, #ffc107);
+    }
+    @keyframes caer {
+      from { transform: translateY(0) rotate(0deg); }
+      to { transform: translateY(110vh) rotate(360deg); }
+    }
+
+    /* Fuegos artificiales */
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Música -->
+  <audio id="musica" loop>
+    <source src="https://www.bensound.com/bensound-music/bensound-romantic.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Pantalla inicial -->
+  <div id="presentacion">
+    💖 Feliz Aniversario 💖
+    <button id="abrir">Ábreme</button>
+  </div>
+
+  <!-- Carta -->
+  <div class="carta" id="carta">
+    <h2>💌 Mi Carta para Ti</h2>
+    <p>
+      Hoy celebramos 2 años y 4 meses juntos 🌸.  
+      Gracias por cada instante, por cada sonrisa y por cada abrazo.  
+      Eres mi felicidad, mi paz y mi amor eterno.  
+      ¡Feliz Aniversario! ❤️
+    </p>
+  </div>
+
+  <!-- Rosa que sube -->
+  <img src="https://i.imgur.com/mRkT0fF.png" alt="Rosa" class="rosa" id="rosa">
+
+  <!-- Fuegos artificiales -->
+  <canvas id="fuegos"></canvas>
+
+  <script>
+    const abrir = document.getElementById("abrir");
+    const carta = document.getElementById("carta");
+    const rosa = document.getElementById("rosa");
+    const fuegos = document.getElementById("fuegos");
+    const musica = document.getElementById("musica");
+    const ctx = fuegos.getContext("2d");
+
+    // Mostrar el botón después de 3 segundos
+    setTimeout(() => { abrir.style.display = "block"; }, 3000);
+
+    // Crear globos y confeti
+    for (let i = 0; i < 20; i++) {
+      let globo = document.createElement("div");
+      globo.className = i % 2 === 0 ? "globo" : "confeti";
+      globo.style.left = Math.random() * 100 + "vw";
+      globo.style.animationDuration = (3 + Math.random() * 3) + "s";
+      document.body.appendChild(globo);
+    }
+
+    abrir.addEventListener("click", () => {
+      document.getElementById("presentacion").style.display = "none";
+      carta.style.display = "block";
+      musica.play().catch(()=>{}); // inicia música
+
+      setTimeout(() => {
+        rosa.style.display = "block";
+        fuegos.style.display = "block";
+        lanzarFuegos();
+      }, 2000);
+    });
+
+    // Fuegos artificiales
+    let particles = [];
+    function lanzarFuegos() {
+      function random(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+      function crearParticula(x, y) {
+        for (let i = 0; i < 100; i++) {
+          particles.push({
+            x: x, y: y,
+            dx: random(-5, 5),
+            dy: random(-5, 5),
+            life: 100
+          });
+        }
+      }
+      function animar() {
+        ctx.clearRect(0, 0, fuegos.width, fuegos.height);
+        particles.forEach((p, i) => {
+          ctx.fillStyle = "hsl(" + (Math.random() * 360) + ",100%,50%)";
+          ctx.fillRect(p.x, p.y, 4, 4);
+          p.x += p.dx;
+          p.y += p.dy;
+          p.life--;
+          if (p.life <= 0) particles.splice(i, 1);
+        });
+        requestAnimationFrame(animar);
+      }
+      fuegos.width = window.innerWidth;
+      fuegos.height = window.innerHeight;
+      setInterval(() => {
+        crearParticula(random(100, fuegos.width-100), random(100, fuegos.height/2));
+      }, 1500);
+      animar();
+    }
+  </script>
+</body>
+</html>
