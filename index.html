@@ -6,7 +6,7 @@
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', Arial, sans-serif;
+      font-family: Arial, sans-serif;
       background: linear-gradient(135deg, #ffe4ec, #fff7f0);
       height: 100vh;
       display: flex;
@@ -17,7 +17,7 @@
     .container {
       display: flex;
       width: 90%;
-      max-width: 1000px;
+      max-width: 1200px;
       height: 90vh;
       border-radius: 20px;
       overflow: hidden;
@@ -85,13 +85,17 @@
       flex: 2;
       background: #fffdf9;
       padding: 30px;
+
+      /* Centrado */
       display: flex;
       flex-direction: column;
-      align-items: center;
+      justify-content: center; 
+      align-items: center;     
+      text-align: center;
+
       opacity: 0;
       transform: scale(0.95);
       transition: all 1s ease;
-      overflow-y: auto;
     }
 
     .card.show {
@@ -100,7 +104,7 @@
     }
 
     .teamo span {
-      font-size: 50px;
+      font-size: 48px;
       font-weight: bold;
       color: #ff4f7b;
       opacity: 0;
@@ -109,46 +113,58 @@
       transition: all .4s ease;
     }
 
-    .big-title {
-      font-size: 32px;
-      color: #ff3366;
-      margin-top: 20px;
-      font-weight: bold;
+    .waters {
+      font-size: 28px;
+      color: #4fc3f7;
+      margin: 20px 0;
       opacity: 0;
-      transform: translateY(20px);
-      transition: all .6s ease;
+      transition: opacity 1s ease;
     }
 
-    .big-title.show {
+    .heart {
+      font-size: 60px;
+      color: #ff4f7b;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all 0.8s ease;
+    }
+
+    .heart.show {
       opacity: 1;
-      transform: translateY(0);
+      transform: scale(1);
     }
 
     .phrases {
       margin-top: 25px;
-      text-align: center;
       width: 100%;
       max-width: 500px;
     }
 
     .phrase {
-      background: #fff;
+      background: linear-gradient(180deg,#fff,#fffaf0);
       padding:16px;
-      border-radius:14px;
-      border:1px solid rgba(255,107,150,.2);
+      border-radius:12px;
+      border:1px solid rgba(255,107,150,.08);
       text-align:center;
-      box-shadow:0 6px 16px rgba(250,120,160,.15);
+      box-shadow:0 6px 18px rgba(250,120,160,.04);
       opacity:0;
       transform:translateY(20px);
       transition:all .6s ease;
       margin: 12px auto;
-      font-size: 18px;
-      color: #444;
+      max-width: 100%;
     }
 
     .phrase.show {
       opacity:1;
       transform:translateY(0);
+    }
+
+    .big-title {
+      font-size: 32px;
+      color: #ff3366;
+      margin-top: 20px;
+      font-weight: bold;
+      text-align: center;
     }
 
     .tiny-heart {
@@ -180,15 +196,25 @@
         <span>T</span><span>E</span><span> </span><span>A</span><span>M</span><span>O</span>
       </div>
       <div class="big-title" id="bigTitle"></div>
+      <div class="waters" id="waters">💧💧💧</div>
+      <div class="heart" id="heart">❤️</div>
       <div class="phrases" id="phrases"></div>
     </div>
   </div>
 
+  <!-- Música romántica -->
+  <audio id="bgMusic" loop>
+    <source src="https://www.bensound.com/bensound-music/bensound-romantic.mp3" type="audio/mp3">
+  </audio>
+
   <script>
     const card = document.getElementById("card");
     const teamoEl = document.getElementById("teamoEl");
+    const waters = document.getElementById("waters");
+    const heart = document.getElementById("heart");
     const phrasesEl = document.getElementById("phrases");
     const bigTitle = document.getElementById("bigTitle");
+    const bgMusic = document.getElementById("bgMusic");
 
     const frases = [
       "Eres mi mundo 🌎",
@@ -200,7 +226,7 @@
 
     function checkCode() {
       const input = document.getElementById("codeInput").value;
-      if (input === "0501") {   // clave cambiada
+      if (input === "0501") {
         openSequence();
       } else {
         alert("Clave incorrecta, intenta de nuevo ❤️");
@@ -208,6 +234,10 @@
     }
 
     async function openSequence(){
+      // iniciar música
+      bgMusic.volume = 0.3;
+      bgMusic.play();
+
       // Desvanece el panel izquierdo
       document.querySelector('.panel').classList.add('fade-out');
 
@@ -222,13 +252,23 @@
         spans[i].style.transform = 'translateY(0)';
       }
 
-      // mostrar título "Feliz aniversario"
+      // mostrar título grande
       await new Promise(r=>setTimeout(r, 600));
       bigTitle.textContent = '¡Feliz aniversario!';
-      bigTitle.classList.add('show');
 
-      // frases secuenciales estilo cartita
-      await new Promise(r=>setTimeout(r, 1200));
+      // mostrar agua
+      waters.style.opacity = '1';
+      await new Promise(r=>setTimeout(r, 1300));
+
+      // mostrar corazon
+      heart.classList.add('show');
+      heart.animate(
+        [{transform:'scale(1)'},{transform:'scale(1.08)'},{transform:'scale(1)'}],
+        {duration:900,iterations:2}
+      );
+
+      // frases secuenciales
+      await new Promise(r=>setTimeout(r,800));
       showPhrases();
 
       // corazones flotando
@@ -240,7 +280,9 @@
       for(const f of frases){
         const d = document.createElement('div');
         d.className='phrase';
-        d.textContent = f; 
+        const p = document.createElement('p'); 
+        p.textContent = f; 
+        d.appendChild(p);
         phrasesEl.appendChild(d);
         await new Promise(r=>setTimeout(r, 1500)); 
         d.classList.add('show');
@@ -256,7 +298,7 @@
         h.style.top = window.innerHeight+'px';
         document.body.appendChild(h);
         setTimeout(()=>h.remove(),4000);
-      },600);
+      },500);
     }
   </script>
 </body>
