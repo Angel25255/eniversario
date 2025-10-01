@@ -2,217 +2,261 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Feliz Aniversario</title>
+  <title>Carta Interactiva</title>
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      background: linear-gradient(to bottom, #ffdde1, #ee9ca7);
-      overflow: hidden;
-      text-align: center;
-    }
-
-    /* Pantalla inicial */
-    #presentacion {
-      position: fixed;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(to bottom right, #ff9a9e, #fad0c4);
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #ffe4ec, #fff7f0);
+      height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-direction: column;
-      color: white;
-      font-size: 3em;
-      animation: fadeIn 2s ease-in-out;
     }
 
-    #abrir {
-      padding: 15px 30px;
-      font-size: 1.2em;
-      background: #ff4d6d;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      margin-top: 20px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      animation: pulse 1.5s infinite;
-      display: none;
-    }
-
-    /* Carta */
-    .carta {
-      display: none;
-      position: absolute;
-      top: 15%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 60%;
-      padding: 30px;
-      background: white;
+    .container {
+      display: flex;
+      width: 90%;
+      max-width: 1000px;
+      height: 90vh;
       border-radius: 20px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-      font-size: 1.2em;
-      line-height: 1.5em;
-      animation: aparecer 2s ease forwards;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      background: #fff;
     }
 
-    /* Rosa */
-    .rosa {
-      display: none;
-      position: fixed;
-      bottom: -300px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 200px;
-      animation: subir 4s ease forwards;
+    /* Panel izquierdo (oso + clave) */
+    .panel {
+      flex: 1;
+      background: #ffe9f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 1s ease;
+      text-align: center;
+      padding: 20px;
     }
 
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); }
-    }
-    @keyframes aparecer {
-      from { opacity: 0; transform: translate(-50%, 30px); }
-      to { opacity: 1; transform: translate(-50%, 0); }
-    }
-    @keyframes subir {
-      from { bottom: -300px; opacity: 0; }
-      to { bottom: 50px; opacity: 1; }
-    }
-
-    /* Confeti y globos */
-    .confeti, .globo {
-      position: absolute;
-      top: -50px;
-      width: 30px;
-      height: 30px;
-      opacity: 0.8;
-      border-radius: 50%;
-      animation: caer 5s linear infinite;
-    }
-    .globo {
-      background: radial-gradient(circle at 30% 30%, #ff4d6d, #e63950);
-    }
-    .confeti {
-      background: radial-gradient(circle at 30% 30%, #ffeb3b, #ffc107);
-    }
-    @keyframes caer {
-      from { transform: translateY(0) rotate(0deg); }
-      to { transform: translateY(110vh) rotate(360deg); }
-    }
-
-    /* Fuegos artificiales */
-    canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+    .fade-out {
+      opacity: 0;
       pointer-events: none;
-      display: none;
+    }
+
+    .panel img {
+      width: 220px;
+      margin-bottom: 20px;
+    }
+
+    .panel input {
+      padding: 10px;
+      border: 2px solid #ff8fb1;
+      border-radius: 8px;
+      font-size: 16px;
+      text-align: center;
+      outline: none;
+    }
+
+    .panel button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      border: none;
+      background: #ff4f7b;
+      color: white;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .panel button:hover {
+      background: #e33f6d;
+    }
+
+    .hint {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #a33b5e;
+      font-style: italic;
+    }
+
+    /* Panel derecho (carta) */
+    .card {
+      flex: 2;
+      background: #fffdf9;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0;
+      transform: scale(0.95);
+      transition: all 1s ease;
+      overflow-y: auto;
+    }
+
+    .card.show {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .teamo span {
+      font-size: 50px;
+      font-weight: bold;
+      color: #ff4f7b;
+      opacity: 0;
+      display: inline-block;
+      transform: translateY(20px);
+      transition: all .4s ease;
+    }
+
+    .big-title {
+      font-size: 32px;
+      color: #ff3366;
+      margin-top: 20px;
+      font-weight: bold;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all .6s ease;
+    }
+
+    .big-title.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .phrases {
+      margin-top: 25px;
+      text-align: center;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .phrase {
+      background: #fff;
+      padding:16px;
+      border-radius:14px;
+      border:1px solid rgba(255,107,150,.2);
+      text-align:center;
+      box-shadow:0 6px 16px rgba(250,120,160,.15);
+      opacity:0;
+      transform:translateY(20px);
+      transition:all .6s ease;
+      margin: 12px auto;
+      font-size: 18px;
+      color: #444;
+    }
+
+    .phrase.show {
+      opacity:1;
+      transform:translateY(0);
+    }
+
+    .tiny-heart {
+      position: absolute;
+      font-size: 18px;
+      color: #ff4f7b;
+      animation: floatUp 4s linear forwards;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(0) scale(1); opacity:1;}
+      100% { transform: translateY(-200px) scale(1.5); opacity:0;}
     }
   </style>
 </head>
 <body>
+  <div class="container">
+    <!-- Panel izquierdo -->
+    <div class="panel">
+      <img src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="oso">
+      <input type="password" id="codeInput" placeholder="Ingresa la clave">
+      <button onclick="checkCode()">Desbloquear</button>
+      <div class="hint">Pista: la clave es el día que nos conocimos ❤️</div>
+    </div>
 
-  <!-- Música -->
-  <audio id="musica" loop>
-    <source src="https://www.bensound.com/bensound-music/bensound-romantic.mp3" type="audio/mpeg">
-  </audio>
-
-  <!-- Pantalla inicial -->
-  <div id="presentacion">
-    💖 Feliz Aniversario 💖
-    <button id="abrir">Ábreme</button>
+    <!-- Panel derecho -->
+    <div class="card" id="card">
+      <div class="teamo" id="teamoEl">
+        <span>T</span><span>E</span><span> </span><span>A</span><span>M</span><span>O</span>
+      </div>
+      <div class="big-title" id="bigTitle"></div>
+      <div class="phrases" id="phrases"></div>
+    </div>
   </div>
-
-  <!-- Carta -->
-  <div class="carta" id="carta">
-    <h2>💌 Mi Carta para Ti</h2>
-    <p>
-      Hoy celebramos 2 años y 4 meses juntos 🌸.  
-      Gracias por cada instante, por cada sonrisa y por cada abrazo.  
-      Eres mi felicidad, mi paz y mi amor eterno.  
-      ¡Feliz Aniversario! ❤️
-    </p>
-  </div>
-
-  <!-- Rosa que sube -->
-  <img src="https://i.imgur.com/mRkT0fF.png" alt="Rosa" class="rosa" id="rosa">
-
-  <!-- Fuegos artificiales -->
-  <canvas id="fuegos"></canvas>
 
   <script>
-    const abrir = document.getElementById("abrir");
-    const carta = document.getElementById("carta");
-    const rosa = document.getElementById("rosa");
-    const fuegos = document.getElementById("fuegos");
-    const musica = document.getElementById("musica");
-    const ctx = fuegos.getContext("2d");
+    const card = document.getElementById("card");
+    const teamoEl = document.getElementById("teamoEl");
+    const phrasesEl = document.getElementById("phrases");
+    const bigTitle = document.getElementById("bigTitle");
 
-    // Mostrar el botón después de 3 segundos
-    setTimeout(() => { abrir.style.display = "block"; }, 3000);
+    const frases = [
+      "Eres mi mundo 🌎",
+      "Gracias por estar conmigo 💕",
+      "Mi razón de sonreír cada día 😊",
+      "No hay nadie como tú ✨",
+      "Te amaré por siempre ❤️"
+    ];
 
-    // Crear globos y confeti
-    for (let i = 0; i < 20; i++) {
-      let globo = document.createElement("div");
-      globo.className = i % 2 === 0 ? "globo" : "confeti";
-      globo.style.left = Math.random() * 100 + "vw";
-      globo.style.animationDuration = (3 + Math.random() * 3) + "s";
-      document.body.appendChild(globo);
+    function checkCode() {
+      const input = document.getElementById("codeInput").value;
+      if (input === "0501") {   // clave cambiada
+        openSequence();
+      } else {
+        alert("Clave incorrecta, intenta de nuevo ❤️");
+      }
     }
 
-    abrir.addEventListener("click", () => {
-      document.getElementById("presentacion").style.display = "none";
-      carta.style.display = "block";
-      musica.play().catch(()=>{}); // inicia música
+    async function openSequence(){
+      // Desvanece el panel izquierdo
+      document.querySelector('.panel').classList.add('fade-out');
 
-      setTimeout(() => {
-        rosa.style.display = "block";
-        fuegos.style.display = "block";
-        lanzarFuegos();
-      }, 2000);
-    });
+      // mostrar tarjeta
+      card.classList.add('show');
 
-    // Fuegos artificiales
-    let particles = [];
-    function lanzarFuegos() {
-      function random(min, max) {
-        return Math.random() * (max - min) + min;
+      // letra por letra "TE AMO"
+      const spans = Array.from(teamoEl.children);
+      for(let i=0;i<spans.length;i++){
+        await new Promise(r=>setTimeout(r, 160));
+        spans[i].style.opacity = '1';
+        spans[i].style.transform = 'translateY(0)';
       }
-      function crearParticula(x, y) {
-        for (let i = 0; i < 100; i++) {
-          particles.push({
-            x: x, y: y,
-            dx: random(-5, 5),
-            dy: random(-5, 5),
-            life: 100
-          });
-        }
+
+      // mostrar título "Feliz aniversario"
+      await new Promise(r=>setTimeout(r, 600));
+      bigTitle.textContent = '¡Feliz aniversario!';
+      bigTitle.classList.add('show');
+
+      // frases secuenciales estilo cartita
+      await new Promise(r=>setTimeout(r, 1200));
+      showPhrases();
+
+      // corazones flotando
+      spawnTinyHearts();
+    }
+
+    async function showPhrases(){
+      phrasesEl.innerHTML = '';
+      for(const f of frases){
+        const d = document.createElement('div');
+        d.className='phrase';
+        d.textContent = f; 
+        phrasesEl.appendChild(d);
+        await new Promise(r=>setTimeout(r, 1500)); 
+        d.classList.add('show');
       }
-      function animar() {
-        ctx.clearRect(0, 0, fuegos.width, fuegos.height);
-        particles.forEach((p, i) => {
-          ctx.fillStyle = "hsl(" + (Math.random() * 360) + ",100%,50%)";
-          ctx.fillRect(p.x, p.y, 4, 4);
-          p.x += p.dx;
-          p.y += p.dy;
-          p.life--;
-          if (p.life <= 0) particles.splice(i, 1);
-        });
-        requestAnimationFrame(animar);
-      }
-      fuegos.width = window.innerWidth;
-      fuegos.height = window.innerHeight;
-      setInterval(() => {
-        crearParticula(random(100, fuegos.width-100), random(100, fuegos.height/2));
-      }, 1500);
-      animar();
+    }
+
+    function spawnTinyHearts(){
+      setInterval(()=>{
+        const h = document.createElement('div');
+        h.className='tiny-heart';
+        h.textContent='❤️';
+        h.style.left = Math.random()*window.innerWidth+'px';
+        h.style.top = window.innerHeight+'px';
+        document.body.appendChild(h);
+        setTimeout(()=>h.remove(),4000);
+      },600);
     }
   </script>
 </body>
